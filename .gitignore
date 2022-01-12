@@ -1,0 +1,6 @@
+node_modules
+dist
+venv
+__pycache__
+saved_models
+.parcel-cache
