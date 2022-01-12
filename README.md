@@ -32,9 +32,9 @@ Evaluate the model using the saved params and return output of the generator as 
 - URL
   `/eval`
 - Method
-  `GET`
+  `POST`
 - Params
-  `NONE`
+  `audio: <wav audio file>`
 - Response
   - Code: `200`
   - Content: `{ img : *image encoded* }`
