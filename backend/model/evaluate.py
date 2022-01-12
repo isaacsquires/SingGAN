@@ -7,7 +7,7 @@ import io
 import base64
 
 
-def evaluate(img_url, nz=100, lf=1,  ngpu=1, seed=None):
+def evaluate(audio, nz=100, lf=1,  ngpu=1, seed=None):
     """
     saves a test volume for a trained or in progress of training generator
     :param pth: where to save image and also where to find the generator
@@ -35,11 +35,12 @@ def evaluate(img_url, nz=100, lf=1,  ngpu=1, seed=None):
     net_g.eval()
     if seed:
         torch.manual_seed(seed)
-    noise = torch.randn(1, nz, lf, lf, lf)
-    raw = net_g(noise)
-    r = np.random.randint(0, 255)
+    audio = torch.Tensor(audio)
+    # noise = torch.randn(1, nz, lf, lf, lf)
+    audio = audio[:, 0].unsqueeze(0).unsqueeze(2).unsqueeze(3).unsqueeze(4)
+    raw = net_g(audio)
     im = Image.fromarray(
-        np.uint8(raw.detach().permute(0, 2, 3, 4, 1).numpy()[0, 63]*r))
+        np.uint8(raw.detach().permute(0, 2, 3, 4, 1).numpy()[0, 63])*255)
     img_byte_arr = io.BytesIO()
     im.save(img_byte_arr, 'JPEG')
     encoded_img = base64.encodebytes(

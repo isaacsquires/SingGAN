@@ -2,27 +2,30 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from model.evaluate import evaluate
 from model.train import train
+import werkzeug
+import numpy as np
+import io
+from scipy.io.wavfile import read
+
+
 app = Flask(__name__)
 api = Api(app)
 
-parser = reqparse.RequestParser()
-parser.add_argument('x')
-
 
 class EvaluateModel(Resource):
-    def get(self):
-        args = parser.parse_args()
-        x = args['x']
-        img_url = 'static/img.png'
-        img = evaluate(img_url)
-
+    def post(self):
+        parse = reqparse.RequestParser()
+        parse.add_argument(
+            'audio', type=werkzeug.datastructures.FileStorage, location='files')
+        args = parse.parse_args()
+        stream = args['audio'].stream
+        a = read(stream)
+        img = evaluate(a[1][100:200])
         return {'img': img}
 
 
 class TrainModel(Resource):
     def get(self):
-        args = parser.parse_args()
-        x = args['x']
         raw = train()
         return 'Training complete'
 

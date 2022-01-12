@@ -33,7 +33,7 @@ def make_nets(Training=0):
                 x = F.relu_(bn(conv(x)))
 
             # use tanh if colour or grayscale, otherwise softmax for one hot encoded
-            out = torch.softmax(self.convs[-1](x), dim=1)
+            out = 0.5*torch.tanh(self.convs[-1](x))+1
             return out  # bs x n x imsize x imsize x imsize
 
     class DiscriminatorWGAN(nn.Module):
