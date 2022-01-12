@@ -1,9 +1,14 @@
 from .network import make_nets
 import torch
+import pathlib
 
 
 def train():
-    print('training')
+    # Create saved model directory
+    file_path = "model/saved_models"
+    pathlib.Path(file_path).mkdir(parents=True, exist_ok=True)
+
+    print('Training')
     netD, netG = make_nets(Training=1)
 
     net_g = netG()

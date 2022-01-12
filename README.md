@@ -27,6 +27,8 @@ python api.py
 
 ##### EvaluateModel
 
+Evaluate the model using the saved params and return output of the generator as base64 encoded image.
+
 - URL
   `/eval`
 - Method
@@ -36,6 +38,21 @@ python api.py
 - Response
   - Code: `200`
   - Content: `{ img : *image encoded* }`
+
+##### TrainModel
+
+Initiate training of model. Saves trained model to `model/saved_models` directory, creates directory if not created.
+TODO - actual training rather than dummy training
+
+- URL
+  `/train`
+- Method
+  `GET`
+- Params
+  `NONE`
+- Response
+  - Code: `200`
+  - Content: `Training complete`
 
 ## Structure
 

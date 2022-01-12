@@ -24,7 +24,7 @@ class TrainModel(Resource):
         args = parser.parse_args()
         x = args['x']
         raw = train()
-        return {'raw': raw}
+        return 'Training complete'
 
 
 api.add_resource(EvaluateModel, '/eval')
