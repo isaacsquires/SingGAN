@@ -34,7 +34,7 @@ Evaluate the model using the saved params and return output of the generator as 
 - Method
   `POST`
 - Params
-  `audio: <wav audio file>`
+  `audio: <array length 100>`
 - Response
   - Code: `200`
   - Content: `{ img : *image encoded* }`

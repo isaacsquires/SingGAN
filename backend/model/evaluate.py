@@ -37,7 +37,7 @@ def evaluate(audio, nz=100, lf=1,  ngpu=1, seed=None):
         torch.manual_seed(seed)
     audio = torch.Tensor(audio)
     # noise = torch.randn(1, nz, lf, lf, lf)
-    audio = audio[:, 0].unsqueeze(0).unsqueeze(2).unsqueeze(3).unsqueeze(4)
+    audio = audio.unsqueeze(0).unsqueeze(2).unsqueeze(3).unsqueeze(4)
     raw = net_g(audio)
     im = Image.fromarray(
         np.uint8(raw.detach().permute(0, 2, 3, 4, 1).numpy()[0, 63])*255)

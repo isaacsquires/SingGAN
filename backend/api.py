@@ -2,9 +2,10 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from model.evaluate import evaluate
 from model.train import train
-
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 
@@ -12,7 +13,8 @@ class EvaluateModel(Resource):
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('audio', type=list, location="json")
-        audio = parse.parse_args()
+        parser = parse.parse_args()
+        audio = parser['audio']
         img = evaluate(audio)
         return {'img': img}
 
