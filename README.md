@@ -44,13 +44,13 @@ python api.py
 ├── README.md
 ├── backend
 │   ├── model
-|   │   ├── config.py
-|   │   ├── network.py
-|   │   ├── evaluate.py
-|   │   ├── train.py
-|   │   └── saved_models
-|   ├── requirements.txt
-|   ├── .gitignore
+│   │   ├── config.py
+│   │   ├── network.py
+│   │   ├── evaluate.py
+│   │   ├── train.py
+│   │   └── saved_models
+│   ├── requirements.txt
+│   ├── .gitignore
 │   └── api.py
 ├── frontend
     ├── ...
