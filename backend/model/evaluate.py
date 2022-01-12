@@ -7,7 +7,7 @@ import io
 import base64
 
 
-def evaluate(audio, nz=100, lf=1,  ngpu=1, seed=None):
+def evaluate(audio, ngpu=1, seed=None):
     """
     saves a test volume for a trained or in progress of training generator
     :param pth: where to save image and also where to find the generator

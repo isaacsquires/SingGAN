@@ -1,7 +1,7 @@
 imsize = 128
 padded_size = 184
 label_channels = 2
-nz = 100
+nz = 256
 lz = 1
 bs = 6
 device_name = "cpu"
