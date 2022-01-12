@@ -21,8 +21,8 @@ class EvaluateModel(Resource):
 
 class TrainModel(Resource):
     def get(self):
-        raw = train()
-        return 'Training complete'
+        train()
+        return {'modelTrained': True}
 
 
 api.add_resource(EvaluateModel, '/eval')

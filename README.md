@@ -34,7 +34,7 @@ Evaluate the model using the saved params and return output of the generator as 
 - Method
   `POST`
 - Params
-  `audio: <array length 100>`
+  `audio: <array length 256>`
 - Response
   - Code: `200`
   - Content: `{ img : *image encoded* }`
@@ -52,7 +52,7 @@ TODO - actual training rather than dummy training
   `NONE`
 - Response
   - Code: `200`
-  - Content: `Training complete`
+  - Content: `{modelTrained: True}`
 
 ## Structure
 
