@@ -24,9 +24,9 @@ def make_nets(Training=0):
             self.convs = nn.ModuleList()
             self.bns = nn.ModuleList()
             for lay, (k, s, p) in enumerate(zip(gk, gs, gp)):
-                self.convs.append(nn.ConvTranspose3d(
+                self.convs.append(nn.ConvTranspose2d(
                     gf[lay], gf[lay+1], k, s, p, bias=False))
-                self.bns.append(nn.BatchNorm3d(gf[lay+1]))
+                self.bns.append(nn.BatchNorm2d(gf[lay+1]))
 
         def forward(self, x):
             for conv, bn in zip(self.convs[:-1], self.bns[:-1]):

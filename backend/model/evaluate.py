@@ -5,6 +5,7 @@ from .network import make_nets
 from PIL import Image
 import io
 import base64
+import time
 
 
 def evaluate(audio, ngpu=1, seed=None):
@@ -19,7 +20,7 @@ def evaluate(audio, ngpu=1, seed=None):
     :param periodic: list of periodicity in axis 1 through n
     :return:
     """
-
+    tic = time.time()
     _, netG = make_nets(Training=0)
     net_g = netG()
 
@@ -33,17 +34,18 @@ def evaluate(audio, ngpu=1, seed=None):
         'model/saved_models/Gen.pt', map_location=device)
     net_g.load_state_dict(model_state_dict)
     net_g.eval()
-    if seed:
-        torch.manual_seed(seed)
     audio = torch.Tensor(audio)
     # noise = torch.randn(1, nz, lf, lf, lf)
-    audio = audio.unsqueeze(0).unsqueeze(2).unsqueeze(3).unsqueeze(4)
+    audio = audio.unsqueeze(0).unsqueeze(2).unsqueeze(3)
     raw = net_g(audio)
     im = Image.fromarray(
-        np.uint8(raw.detach().permute(0, 2, 3, 4, 1).numpy()[0, 63])*255)
+        np.uint8(raw.detach().permute(0, 2, 3, 1).numpy()[0, 63])*255)
     img_byte_arr = io.BytesIO()
     im.save(img_byte_arr, 'JPEG')
     encoded_img = base64.encodebytes(
         img_byte_arr.getvalue()).decode('ascii')
+    toc = time.time()
+
+    print(f'Time: {toc-tic}')
 
     return encoded_img
