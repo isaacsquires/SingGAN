@@ -39,7 +39,7 @@ def evaluate(audio, ngpu=1, seed=None):
     audio = audio.unsqueeze(0).unsqueeze(2).unsqueeze(3)
     raw = net_g(audio)
     im = Image.fromarray(
-        np.uint8(raw.detach().permute(0, 2, 3, 1).numpy()[0])*128)
+        np.uint8(raw.detach().permute(0, 2, 3, 1).numpy()[0])*255)
     img_byte_arr = io.BytesIO()
     im.save(img_byte_arr, 'JPEG')
     encoded_img = base64.encodebytes(
