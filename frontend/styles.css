@@ -1,0 +1,10 @@
+body {
+  background-color: lightgray;
+  font-family: sans-serif;
+}
+
+img {
+  width: 50%;
+  height: 50%;
+  margin: auto;
+}
