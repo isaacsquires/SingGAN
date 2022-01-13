@@ -96,59 +96,73 @@ def train():
             net_d.zero_grad()
 
             real_data = next(iter(train_dataloader)).to(device)
-            output = net_d(real_data).view(-1)
-            label = torch.full((batch_size,), real_label,
-                               dtype=torch.float, device=device)
-            errD_real = criterion(output, label)
-            errD_real.backward()
-            D_x = output.mean().item()
-
             noise = torch.randn(batch_size, nz,
                                 lz, lz, device=device)
             fake_data = net_g(noise).detach()
-            label.fill_(fake_label)
-            # Classify all fake batch with D
-            output = net_d(fake_data.detach()).view(-1)
-            # Calculate D's loss on the all-fake batch
-            errD_fake = criterion(output, label)
 
-            errD_fake.backward()
-            D_G_z1 = output.mean().item()
-            # Compute error of D as sum over the fake and the real batches
-            errD = errD_real + errD_fake
-            # Update D
-            optD.step()
+            out_real = net_d(real_data).view(-1).mean()
+            out_fake = net_d(fake_data).mean()
 
-            # gradient_penalty = grad_pen(
-            #     net_d, real_data, fake_data, l, device, Lambda, nc)
-            # disc_cost = out_fake - out_real + gradient_penalty
+            # output = net_d(real_data).view(-1)
+            # label = torch.full((batch_size,), real_label,
+            #                    dtype=torch.float, device=device)
+            # errD_real = criterion(output, label)
+            # errD_real.backward()
+            # D_x = output.mean().item()
 
-            # disc_cost.backward()
+            # noise = torch.randn(batch_size, nz,
+            #                     lz, lz, device=device)
+            # fake_data = net_g(noise).detach()
+            # label.fill_(fake_label)
+            # # Classify all fake batch with D
+            # output = net_d(fake_data.detach()).view(-1)
+            # # Calculate D's loss on the all-fake batch
+            # errD_fake = criterion(output, label)
 
+            # errD_fake.backward()
+            # D_G_z1 = output.mean().item()
+            # # Compute error of D as sum over the fake and the real batches
+            # errD = errD_real + errD_fake
+            # # Update D
             # optD.step()
 
-            wandb.log({"D(real)": D_x})
-            wandb.log({"D(fake)": D_G_z1})
-            wandb.log({"errD": errD})
+            # wandb.log({"D(real)": D_x})
+            # wandb.log({"D(fake)": D_G_z1})
+            # wandb.log({"errD": errD})
+
+            gradient_penalty = grad_pen(
+                net_d, real_data, fake_data, l, device, Lambda, nc)
+            disc_cost = out_fake - out_real + gradient_penalty
+
+            disc_cost.backward()
+
+            optD.step()
+
+            wandb.log({"D(real)": out_real.item()})
+            wandb.log({"D(fake)": out_fake.item()})
+            wandb.log({"Wass": (out_real-out_fake).item()})
 
             if i % int(critic_iters) == 0:
                 net_g.zero_grad()
                 noise = torch.randn(batch_size, nz,
                                     lz, lz, device=device)
                 # Forward pass through G with noise vector
-                fake_data = net_g(noise)
-                label.fill_(real_label)
-                output = net_d(fake_data).view(-1)
-                errG = criterion(output, label)
-                # Calculate gradients for G
-                errG.backward()
-                D_G_z2 = output.mean().item()
-                # Update G
-                optG.step()
-                # Calculate loss for G and backprop
-                # G_cost = -output
-                # G_cost.backward()
+                # fake_data = net_g(noise)
+                # label.fill_(real_label)
+                # output = net_d(fake_data).view(-1)
+                # errG = criterion(output, label)
+                # # Calculate gradients for G
+                # errG.backward()
+                # D_G_z2 = output.mean().item()
+                # # Update G
                 # optG.step()
+
+                # Calculate loss for G and backprop
+                fake_data = net_g(noise)
+                output = net_d(fake_data).mean()
+                G_cost = -output
+                G_cost.backward()
+                optG.step()
 
             if i % 50 == 0:
                 with torch.no_grad():

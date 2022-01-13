@@ -48,7 +48,7 @@ def make_nets(Training=0):
             # concat along channel dim to get (bs, nc+1, l)
             for conv in self.convs[:-1]:
                 x = F.relu_(conv(x))
-            x = torch.sigmoid(self.convs[-1](x))  # bs x 1 x 1
+            x = self.convs[-1](x)  # bs x 1 x 1
             return x
     print('Architect Complete...')
 

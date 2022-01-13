@@ -40,9 +40,7 @@ def grad_pen(netD, real_data, fake_data, l, device, gp_lambda, nc):
     alpha = alpha.expand(batch_size, int(
         real_data.nelement() / batch_size)).contiguous()
     alpha = alpha.view(batch_size, nc, l, l)
-    # alpha_labels = alpha.clone()[:, 0].unsqueeze(1)
     alpha = alpha.to(device)
-    # alpha_labels = alpha_labels.to(device)
 
     interpolates = alpha * real_data.detach() + ((1 - alpha) * fake_data.detach())
     interpolates = interpolates.to(device)

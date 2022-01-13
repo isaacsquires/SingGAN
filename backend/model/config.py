@@ -2,8 +2,8 @@ imsize = 128
 nz = 256
 lz = 1
 bs = 10
-device_name = "cuda:1"
-ngpu = 1
+device_name = "cuda:0"
+ngpu = 2
 channels = 3
 data_dir = 'model/data/Hands'
 
@@ -27,7 +27,7 @@ class TrainParams(Config):
         self.beta2 = 0.999
 #         self.num_epochs = 1
 #         self.iters = 50
-        self.num_epochs = 100
+        self.num_epochs = 1000
         self.iters = 100
         self.lrg = 0.0001
         self.lr = 0.0001
