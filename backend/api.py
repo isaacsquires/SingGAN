@@ -29,5 +29,5 @@ api.add_resource(EvaluateModel, '/eval')
 api.add_resource(TrainModel, '/train')
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    # train()
+    # app.run(debug=True)
+    train()

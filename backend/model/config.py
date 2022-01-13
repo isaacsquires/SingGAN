@@ -1,10 +1,9 @@
 imsize = 128
-padded_size = 184
 nz = 256
 lz = 1
-bs = 6
-device_name = "cuda:0"
-ngpu = 2
+bs = 10
+device_name = "cuda:1"
+ngpu = 1
 channels = 3
 data_dir = 'model/data/Hands'
 
@@ -21,7 +20,6 @@ class TrainParams(Config):
     def __init__(self):
         super().__init__()
         self.l = imsize
-        self.padded_size = padded_size
         self.nc = channels
         # Training hyperparams
         self.batch_size = bs

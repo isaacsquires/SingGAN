@@ -7,9 +7,49 @@ import torch.optim as optim
 import pathlib
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
+from PIL import Image
+import numpy as np
+import wandb
+import subprocess
+from dotenv import load_dotenv
+import os
+import matplotlib.pyplot as plt
+
+# mode='diasbled'
+mode = None
+
+
+def wandb_init(name):
+    load_dotenv(os.path.join(os.getcwd(), '.env'))
+    API_KEY = os.getenv('WANDB_API_KEY')
+    print("Logging into W and B using API key {}".format(API_KEY))
+    process = subprocess.run(["wandb", "login", API_KEY], capture_output=True)
+    print("stderr:", process.stderr)
+
+    ENTITY = os.getenv('WANDB_ENTITY')
+    PROJECT = os.getenv('WANDB_PROJECT')
+    print('initing')
+    wandb.init(entity=ENTITY, name=name, project=PROJECT, mode=mode)
+
+    wandb_config = {
+        'active': True,
+        'api_key': API_KEY,
+        'entity': ENTITY,
+        'project': PROJECT,
+        # 'watch_called': False,
+        'no_cuda': False,
+        # 'seed': 42,
+        'log_interval': 1000,
+
+    }
+    # wandb.watch_called = wandb_config['watch_called']
+    wandb.config.no_cuda = wandb_config['no_cuda']
+    # wandb.config.seed = wandb_config['seed']
+    wandb.config.log_interval = wandb_config['log_interval']
 
 
 def train():
+    wandb_init('hands')
     # Create saved model directory
     file_path = "model/saved_models"
     pathlib.Path(file_path).mkdir(parents=True, exist_ok=True)
@@ -42,40 +82,93 @@ def train():
     dataset = CustomImageDataset(t_params.data_dir, l)
     train_dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
+    wandb.watch(net_g)
+    wandb.watch(net_d)
+
+    criterion = nn.BCELoss()
+    real_label = 1.
+    fake_label = 0.
+
     for epoch in range(num_epochs):
         times = []
         for i in range(iters):
 
+            net_d.zero_grad()
+
+            real_data = next(iter(train_dataloader)).to(device)
+            output = net_d(real_data).view(-1)
+            label = torch.full((batch_size,), real_label,
+                               dtype=torch.float, device=device)
+            errD_real = criterion(output, label)
+            errD_real.backward()
+            D_x = output.mean().item()
+
             noise = torch.randn(batch_size, nz,
                                 lz, lz, device=device)
             fake_data = net_g(noise).detach()
-            out_fake = net_d(fake_data).mean()
-            real_data = next(iter(train_dataloader)).to(device)
-            out_real = net_d(real_data).view(-1).mean()
-            gradient_penalty = grad_pen(
-                net_d, real_data, fake_data, l, device, Lambda, nc)
+            label.fill_(fake_label)
+            # Classify all fake batch with D
+            output = net_d(fake_data.detach()).view(-1)
+            # Calculate D's loss on the all-fake batch
+            errD_fake = criterion(output, label)
 
-            disc_cost = out_fake - out_real + gradient_penalty
-            disc_cost.backward()
+            errD_fake.backward()
+            D_G_z1 = output.mean().item()
+            # Compute error of D as sum over the fake and the real batches
+            errD = errD_real + errD_fake
+            # Update D
             optD.step()
 
+            # gradient_penalty = grad_pen(
+            #     net_d, real_data, fake_data, l, device, Lambda, nc)
+            # disc_cost = out_fake - out_real + gradient_penalty
+
+            # disc_cost.backward()
+
+            # optD.step()
+
+            wandb.log({"D(real)": D_x})
+            wandb.log({"D(fake)": D_G_z1})
+            wandb.log({"errD": errD})
+
             if i % int(critic_iters) == 0:
+                net_g.zero_grad()
                 noise = torch.randn(batch_size, nz,
                                     lz, lz, device=device)
-                for dim, (d1, d2, d3) in enumerate(zip([2, 3, 2], [3, 4, 4], [4, 2, 3])):
-                    net_g.zero_grad(set_to_none=True)
-                    # Forward pass through G with noise vector
-                    fake_data = net_g(noise)
-                    output = net_d(fake_data).mean()
-                    # Calculate loss for G and backprop
-                    G_cost = -output
-                    G_cost.backward()
-                    optG.step()
+                # Forward pass through G with noise vector
+                fake_data = net_g(noise)
+                label.fill_(real_label)
+                output = net_d(fake_data).view(-1)
+                errG = criterion(output, label)
+                # Calculate gradients for G
+                errG.backward()
+                D_G_z2 = output.mean().item()
+                # Update G
+                optG.step()
+                # Calculate loss for G and backprop
+                # G_cost = -output
+                # G_cost.backward()
+                # optG.step()
 
             if i % 50 == 0:
-                print(i)
-                net_g.eval()
                 with torch.no_grad():
+                    print(
+                        f'iteration {i} of {iters}, epoch {epoch} of {num_epochs}')
+                    noise = torch.randn(batch_size, nz,
+                                        lz, lz, device=device)
+                    out_fake = net_g(noise)[0].permute(
+                        1, 2, 0).detach().cpu().numpy()
+                    fig = plt.figure()
+                    plt.subplot(211)
+                    plt.imshow(np.uint8(out_fake*255))
+                    plt.subplot(212)
+                    plt.imshow(np.uint8((real_data[0]*255).permute(
+                        1, 2, 0).detach().cpu().numpy()))
+                    # im.save('example_fake.jpeg')
+                    # im2.save('example_real.jpeg')
+                    wandb.log({"Real vs fake": wandb.Image(fig)})
+                    plt.close()
+
                     torch.save(net_g.state_dict(), 'model/saved_models/Gen.pt')
                     torch.save(net_d.state_dict(),
                                'model/saved_models/Disc.pt')

@@ -17,7 +17,10 @@ class CustomImageDataset(Dataset):
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_labels[idx])
-        image = read_image(img_path)
+        try:
+            image = read_image(img_path)
+        except:
+            print(img_path)
         if self.imsize:
             image = interpolate(image.unsqueeze(
                 0), (self.imsize, self.imsize))[0]/255
