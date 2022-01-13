@@ -1,7 +1,6 @@
 from flask import Flask, render_template, make_response
 from flask_restful import Resource, Api, reqparse
 from model.evaluate import evaluate
-from model.train import train
 from flask_cors import CORS
 import os
 
@@ -18,14 +17,14 @@ class EvaluateModel(Resource):
         parse.add_argument('audio', type=list, location="json")
         parser = parse.parse_args()
         audio = parser['audio']
-        img = evaluate(audio)
+        img = evaluate(audio, ngpu=2)
         return {'img': img}
 
 
-class TrainModel(Resource):
-    def get(self):
-        train()
-        return {'modelTrained': True}
+# class TrainModel(Resource):
+#     def get(self):
+#         train()
+#         return {'modelTrained': True}
 
 
 class RenderIndex(Resource):
@@ -35,9 +34,8 @@ class RenderIndex(Resource):
 
 
 api.add_resource(EvaluateModel, '/eval')
-api.add_resource(TrainModel, '/train')
+# api.add_resource(TrainModel, '/train')
 api.add_resource(RenderIndex, '/')
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    train()
+    app.run(debug=True)

@@ -50,6 +50,5 @@ def make_nets(Training=0):
                 x = F.relu_(conv(x))
             x = self.convs[-1](x)  # bs x 1 x 1
             return x
-    print('Architect Complete...')
 
     return DiscriminatorWGAN, GeneratorWGAN

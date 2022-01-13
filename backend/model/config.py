@@ -2,8 +2,8 @@ imsize = 128
 nz = 256
 lz = 1
 bs = 10
-device_name = "cuda:0"
-ngpu = 2
+device_name = "cpu"
+ngpu = 0
 channels = 3
 data_dir = 'model/data/Hands'
 
