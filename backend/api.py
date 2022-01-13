@@ -38,4 +38,4 @@ api.add_resource(EvaluateModel, '/eval')
 api.add_resource(RenderIndex, '/')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0')
