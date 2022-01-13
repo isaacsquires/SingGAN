@@ -1,9 +1,11 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
   "devDependencies": {
     "parcel": "^2.2.0"
+  },
+  "scripts": {
+    "build": " yarn parcel build index.html --dist-dir ../backend/templates"
   }
 }
