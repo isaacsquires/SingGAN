@@ -42,11 +42,10 @@ def make_nets(Training=0):
             self.convs = nn.ModuleList()
             for lay, (k, s, p) in enumerate(zip(dk, ds, dp)):
                 self.convs.append(
-                    nn.Conv1d(df[lay], df[lay + 1], k, s, p, bias=False))
+                    nn.Conv2d(df[lay], df[lay + 1], k, s, p, bias=False))
 
-        def forward(self, x, c):
+        def forward(self, x):
             # concat along channel dim to get (bs, nc+1, l)
-            x = torch.cat([x, c], 1)
             for conv in self.convs[:-1]:
                 x = F.relu_(conv(x))
             x = self.convs[-1](x)  # bs x 1 x 1

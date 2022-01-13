@@ -1,12 +1,12 @@
 imsize = 128
 padded_size = 184
-label_channels = 2
 nz = 256
 lz = 1
 bs = 6
-device_name = "cpu"
-ngpu = 0
+device_name = "cuda:0"
+ngpu = 2
 channels = 3
+data_dir = 'model/data/Hands'
 
 
 class Config():
@@ -14,6 +14,7 @@ class Config():
         # fake data
         self.imsize = imsize
         self.segmentation_channel = False
+        self.data_dir = data_dir
 
 
 class TrainParams(Config):
@@ -26,12 +27,10 @@ class TrainParams(Config):
         self.batch_size = bs
         self.beta1 = 0.9
         self.beta2 = 0.999
-        self.D_batch_size = 50000  # number of real lines to sample
-        self.D_fake_batch_size = bs
 #         self.num_epochs = 1
 #         self.iters = 50
-        self.num_epochs = 250
-        self.iters = 1000
+        self.num_epochs = 100
+        self.iters = 100
         self.lrg = 0.0001
         self.lr = 0.0001
         self.Lambda = 10
@@ -42,14 +41,13 @@ class TrainParams(Config):
             self.device_name = "cuda:0"
         else:
             self.device_name = device_name
-        self.sf = 1
         self.pix_coeff = 10
         self.nz = nz
         self.time = False
 
     def get_params(self):
-        return self.l, self.nc, self.batch_size, self.beta1, self.beta2, self.D_batch_size, self.D_fake_batch_size, self.num_epochs, \
-            self.iters, self.lrg, self.lr, self.Lambda, self.critic_iters, self.lz, self.nz, self.sf, self.pix_coeff
+        return self.l, self.nc, self.batch_size, self.beta1, self.beta2, self.num_epochs, \
+            self.iters, self.lrg, self.lr, self.Lambda, self.critic_iters, self.lz, self.nz, self.pix_coeff
 
     def get_path(self):
         return [self.preproc_img_path]
@@ -72,7 +70,7 @@ class NetParams(Config):
         # kernel sizes
         self.dk, self.gk = [4]*self.laysd, [4]*self.lays
         self.ds, self.gs = [2]*self.laysd, [2]*self.lays
-        self.df, self.gf = [self.channels+label_channels, 4, 16, 32, 64, 128, 1], [
+        self.df, self.gf = [self.channels, 4, 16, 32, 64, 128, 1], [
             self.nz, 256, 128, 64, 32, 16, 8, self.channels]
         self.dp = [1, 1, 1, 1, 1, 0]
         self.gp = [1, 1, 1, 1, 1, 1, 1]

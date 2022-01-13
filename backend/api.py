@@ -30,3 +30,4 @@ api.add_resource(TrainModel, '/train')
 
 if __name__ == '__main__':
     app.run(debug=True)
+    # train()
