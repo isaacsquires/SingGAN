@@ -3,6 +3,7 @@ from .config import TrainParams, NetParams
 from .util import CustomImageDataset, grad_pen
 import torch
 import torch.nn as nn
+from torchinfo import summary
 import torch.optim as optim
 import pathlib
 from torch.utils.data import DataLoader
@@ -13,8 +14,8 @@ from dotenv import load_dotenv
 import os
 import matplotlib.pyplot as plt
 
-# mode = 'disabled'
-mode = None
+mode = 'disabled'
+# mode = None
 
 
 def wandb_init(name):
@@ -83,9 +84,11 @@ def train(tag=''):
     wandb.watch(net_g)
     wandb.watch(net_d)
 
-    # criterion = nn.BCELoss()
-    # real_label = 1.
-    # fake_label = 0.
+    summary(net_d)
+    summary(net_g)
+    criterion = nn.BCELoss()
+    real_label = 1.
+    fake_label = 0.
 
     for epoch in range(num_epochs):
         times = []
@@ -94,73 +97,72 @@ def train(tag=''):
             net_d.zero_grad()
 
             real_data = next(iter(train_dataloader)).to(device)
+            # noise = torch.randn(batch_size, nz,
+            # lz, lz, device=device)
+            # fake_data = net_g(noise).detach()
+            # out_real = net_d(real_data).view(-1).mean()
+            # out_fake = net_d(fake_data).mean()
+
+            output = net_d(real_data).view(-1)
+            label = torch.full((batch_size,), real_label,
+                               dtype=torch.float, device=device)
+            errD_real = criterion(output, label)
+            errD_real.backward()
+            D_x = output.mean().item()
+
             noise = torch.randn(batch_size, nz,
                                 lz, lz, device=device)
             fake_data = net_g(noise).detach()
+            label.fill_(fake_label)
+            # Classify all fake batch with D
+            output = net_d(fake_data.detach()).view(-1)
+            # Calculate D's loss on the all-fake batch
+            errD_fake = criterion(output, label)
 
-            out_real = net_d(real_data).view(-1).mean()
-            out_fake = net_d(fake_data).mean()
-
-            # output = net_d(real_data).view(-1)
-            # label = torch.full((batch_size,), real_label,
-            #                    dtype=torch.float, device=device)
-            # errD_real = criterion(output, label)
-            # errD_real.backward()
-            # D_x = output.mean().item()
-
-            # noise = torch.randn(batch_size, nz,
-            #                     lz, lz, device=device)
-            # fake_data = net_g(noise).detach()
-            # label.fill_(fake_label)
-            # # Classify all fake batch with D
-            # output = net_d(fake_data.detach()).view(-1)
-            # # Calculate D's loss on the all-fake batch
-            # errD_fake = criterion(output, label)
-
-            # errD_fake.backward()
-            # D_G_z1 = output.mean().item()
-            # # Compute error of D as sum over the fake and the real batches
-            # errD = errD_real + errD_fake
-            # # Update D
-            # optD.step()
-
-            # wandb.log({"D(real)": D_x})
-            # wandb.log({"D(fake)": D_G_z1})
-            # wandb.log({"errD": errD})
-
-            gradient_penalty = grad_pen(
-                net_d, real_data, fake_data, l, device, Lambda, nc)
-            disc_cost = out_fake - out_real + gradient_penalty
-
-            disc_cost.backward()
-
+            errD_fake.backward()
+            D_G_z1 = output.mean().item()
+            # Compute error of D as sum over the fake and the real batches
+            errD = errD_real + errD_fake
+            # Update D
             optD.step()
 
-            wandb.log({"D(real)": out_real.item()})
-            wandb.log({"D(fake)": out_fake.item()})
-            wandb.log({"Wass": (out_real-out_fake).item()})
+            wandb.log({"D(real)": D_x})
+            wandb.log({"D(fake)": D_G_z1})
+            wandb.log({"errD": errD})
+
+            # gradient_penalty = grad_pen(
+            #     net_d, real_data, fake_data, l, device, Lambda, nc)
+            # disc_cost = out_fake - out_real + gradient_penalty
+
+            # disc_cost.backward()
+
+            # optD.step()
+
+            # wandb.log({"D(real)": out_real.item()})
+            # wandb.log({"D(fake)": out_fake.item()})
+            # wandb.log({"Wass": (out_real-out_fake).item()})
 
             if i % int(critic_iters) == 0:
                 net_g.zero_grad()
                 noise = torch.randn(batch_size, nz,
                                     lz, lz, device=device)
                 # Forward pass through G with noise vector
-                # fake_data = net_g(noise)
-                # label.fill_(real_label)
-                # output = net_d(fake_data).view(-1)
-                # errG = criterion(output, label)
-                # # Calculate gradients for G
-                # errG.backward()
-                # D_G_z2 = output.mean().item()
-                # # Update G
-                # optG.step()
+                fake_data = net_g(noise)
+                label.fill_(real_label)
+                output = net_d(fake_data).view(-1)
+                errG = criterion(output, label)
+                # Calculate gradients for G
+                errG.backward()
+                D_G_z2 = output.mean().item()
+                # Update G
+                optG.step()
 
                 # Calculate loss for G and backprop
-                fake_data = net_g(noise)
-                output = net_d(fake_data).mean()
-                G_cost = -output
-                G_cost.backward()
-                optG.step()
+                # fake_data = net_g(noise)
+                # output = net_d(fake_data).mean()
+                # G_cost = -output
+                # G_cost.backward()
+                # optG.step()
 
             if i % 50 == 0:
                 with torch.no_grad():
@@ -185,3 +187,5 @@ def train(tag=''):
                                f'model/saved_models/{tag}_Gen.pt')
                     torch.save(net_d.state_dict(),
                                f'model/saved_models/{tag}_Disc.pt')
+                    wandb.save(f'model/saved_models/{tag}_Disc.pt')
+                    wandb.save(f'model/saved_models/{tag}_Gen.pt')

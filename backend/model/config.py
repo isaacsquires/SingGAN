@@ -1,9 +1,9 @@
 imsize = 128
 nz = 256
 lz = 1
-bs = 10
-device_name = "cpu"
-ngpu = 0
+bs = 64
+device_name = "cuda:1"
+ngpu = 1
 channels = 3
 data_dir = 'model/data/Hands'
 
@@ -32,7 +32,7 @@ class TrainParams(Config):
         self.lrg = 0.0001
         self.lr = 0.0001
         self.Lambda = 10
-        self.critic_iters = 10
+        self.critic_iters = 1
         self.lz = lz
         self.ngpu = ngpu
         if self.ngpu > 1:
