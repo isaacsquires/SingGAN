@@ -5,16 +5,16 @@ import pickle
 from .config import NetParams
 
 
-def make_nets(Training=0):
+def make_nets(tag='', Training=0):
 
     if Training:
         params = NetParams()
         dk, ds, df, dp, gk, gs, gf, gp = params.get_params()
-        with open('model/saved_models/params.data', 'wb') as filehandle:
+        with open(f'model/saved_models/{tag}_params.data', 'wb') as filehandle:
             # store the data as binary data stream
             pickle.dump(params.get_params(), filehandle)
     else:
-        with open('model/saved_models/params.data', 'rb') as filehandle:
+        with open(f'model/saved_models/{tag}_params.data', 'rb') as filehandle:
             # read the data as binary data stream
             dk, ds, df, dp, gk, gs, gf, gp = pickle.load(filehandle)
 

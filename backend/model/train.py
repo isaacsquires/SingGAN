@@ -46,14 +46,14 @@ def wandb_init(name):
     wandb.config.log_interval = wandb_config['log_interval']
 
 
-def train():
-    wandb_init('hands')
+def train(tag=''):
+    wandb_init(tag)
     # Create saved model directory
     file_path = "model/saved_models"
     pathlib.Path(file_path).mkdir(parents=True, exist_ok=True)
 
     print('Training')
-    netD, netG = make_nets(Training=1)
+    netD, netG = make_nets(Training=1, tag=tag)
 
     t_params = TrainParams()
     n_params = NetParams()
@@ -83,9 +83,9 @@ def train():
     wandb.watch(net_g)
     wandb.watch(net_d)
 
-    criterion = nn.BCELoss()
-    real_label = 1.
-    fake_label = 0.
+    # criterion = nn.BCELoss()
+    # real_label = 1.
+    # fake_label = 0.
 
     for epoch in range(num_epochs):
         times = []
@@ -181,6 +181,7 @@ def train():
                     wandb.log({"Real vs fake": wandb.Image(fig)})
                     plt.close()
 
-                    torch.save(net_g.state_dict(), 'model/saved_models/Gen.pt')
+                    torch.save(net_g.state_dict(),
+                               f'model/saved_models/{tag}_Gen.pt')
                     torch.save(net_d.state_dict(),
-                               'model/saved_models/Disc.pt')
+                               f'model/saved_models/{tag}_Disc.pt')
