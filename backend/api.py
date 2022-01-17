@@ -16,9 +16,11 @@ class EvaluateModel(Resource):
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('audio', type=list, location="json")
+        parse.add_argument('model', type=str, location="json")
         parser = parse.parse_args()
         audio = parser['audio']
-        img = evaluate(audio, ngpu=2)
+        model = parser['model']
+        img = evaluate(audio, ngpu=1, tag=model)
         return {'img': img}
 
 
@@ -28,17 +30,17 @@ class EvaluateModel(Resource):
 #         return {'modelTrained': True}
 
 
-class RenderIndex(Resource):
-    def get(self):
-        headers = {'Content-Type': 'text/html'}
-        return make_response(render_template('index.html'), 200, headers)
+# class RenderIndex(Resource):
+#     def get(self):
+#         headers = {'Content-Type': 'text/html'}
+#         return make_response(render_template('index.html'), 200, headers)
 
 
 api.add_resource(EvaluateModel, '/eval')
 # api.add_resource(TrainModel, '/train')
-api.add_resource(RenderIndex, '/')
+# api.add_resource(RenderIndex, '/')
 
 if __name__ == '__main__':
-    # app.run(host='0.0.0.0')
-    test_img(tag='dcgan_new')
+    app.run(host='0.0.0.0')
+    # test_img(tag='dcgan_new')
     # train(tag='dcgan_new')

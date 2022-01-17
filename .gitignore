@@ -7,3 +7,4 @@ saved_models
 data
 .env
 wandb
+templates

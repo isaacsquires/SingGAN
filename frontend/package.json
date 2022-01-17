@@ -6,6 +6,6 @@
     "parcel": "^2.2.0"
   },
   "scripts": {
-    "build": " yarn parcel build index.html --dist-dir ../backend/templates"
+    "build": " yarn parcel build index.html"
   }
 }

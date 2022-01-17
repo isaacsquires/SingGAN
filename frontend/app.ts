@@ -9,7 +9,7 @@ function setImage(imgSrc: string) {
   imgElement.src = `data:image/png;base64, ${imgSrc}`;
 }
 
-async function postAudioData(audio: Float32Array) {
+async function postAudioData(audio: Float32Array, model: string) {
   try {
     const res = await fetch("http://localhost:5000/eval", {
       method: "POST",
@@ -19,6 +19,7 @@ async function postAudioData(audio: Float32Array) {
       },
       body: JSON.stringify({
         audio: Array.from(audio),
+        model: model,
       }),
     });
     if (res.ok) {
@@ -43,7 +44,8 @@ async function processAudio(stream: MediaStream) {
 
   processor.onaudioprocess = async function (event) {
     const channelData = event.inputBuffer.getChannelData(0);
-    await postAudioData(channelData);
+    const model = document.querySelector('input[name="model"]:checked').value;
+    await postAudioData(channelData, model);
   };
 }
 
