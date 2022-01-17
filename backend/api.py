@@ -1,6 +1,7 @@
 from flask import Flask, render_template, make_response
 from flask_restful import Resource, Api, reqparse
-from model.evaluate import evaluate
+from model.train import train
+from model.evaluate import evaluate, test_img
 from flask_cors import CORS
 import os
 
@@ -38,4 +39,6 @@ api.add_resource(EvaluateModel, '/eval')
 api.add_resource(RenderIndex, '/')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    # app.run(host='0.0.0.0')
+    test_img(tag='dcgan_new')
+    # train(tag='dcgan_new')
