@@ -27,7 +27,7 @@ class TrainParams(Config):
         self.beta2 = 0.999
 #         self.num_epochs = 1
 #         self.iters = 50
-        self.num_epochs = 1000
+        self.num_epochs = 10000
         self.iters = 100
         self.lrg = 0.0001
         self.lr = 0.0001
