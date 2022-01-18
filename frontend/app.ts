@@ -11,7 +11,7 @@ function setImage(imgSrc: string) {
 
 async function postAudioData(audio: Float32Array, model: string) {
   try {
-    const res = await fetch("http://localhost:5000/eval", {
+    const res = await fetch("/eval", {
       method: "POST",
       headers: {
         Accept: "application/json",
