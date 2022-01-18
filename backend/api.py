@@ -30,15 +30,15 @@ class EvaluateModel(Resource):
 #         return {'modelTrained': True}
 
 
-# class RenderIndex(Resource):
-#     def get(self):
-#         headers = {'Content-Type': 'text/html'}
-#         return make_response(render_template('index.html'), 200, headers)
+class RenderIndex(Resource):
+    def get(self):
+        headers = {'Content-Type': 'text/html'}
+        return make_response(render_template('index.html'), 200, headers)
 
 
 api.add_resource(EvaluateModel, '/eval')
 # api.add_resource(TrainModel, '/train')
-# api.add_resource(RenderIndex, '/')
+api.add_resource(RenderIndex, '/')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
