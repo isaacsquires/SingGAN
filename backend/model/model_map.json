@@ -1,4 +1,10 @@
 {
-  "hand": "dcgan_new",
-  "colour": "dcgan_test"
+  "hand": {
+    "model_name": "dcgan_new",
+    "multiplier": 100
+  },
+  "colour": {
+    "model_name": "dcgan_test",
+    "multiplier": 10
+  }
 }

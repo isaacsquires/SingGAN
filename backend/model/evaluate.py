@@ -9,6 +9,9 @@ import io
 import base64
 import time
 
+with open('model/model_map.json') as json_file:
+    model_map = json.load(json_file)
+
 
 def evaluate(audio, ngpu=1, tag=''):
     """
@@ -22,9 +25,8 @@ def evaluate(audio, ngpu=1, tag=''):
     :param periodic: list of periodicity in axis 1 through n
     :return:
     """
-    with open('model/model_map.json') as json_file:
-        model_map = json.load(json_file)
-    tag = model_map[tag]
+    map_index = tag
+    tag = model_map[map_index]['model_name']
     _, netG = make_nets(Training=0, tag=tag)
     net_g = netG()
 
@@ -40,7 +42,7 @@ def evaluate(audio, ngpu=1, tag=''):
     net_g.eval()
     with torch.no_grad():
         audio = torch.Tensor(audio)
-        audio = audio*100
+        audio = audio*model_map[map_index]['multiplier']
         audio = audio.unsqueeze(0).unsqueeze(2).unsqueeze(3)
         # audio = (audio-torch.mean(audio)) / torch.std(audio)
         # audio = torch.randn(1, 256, 1, 1)
@@ -53,7 +55,6 @@ def evaluate(audio, ngpu=1, tag=''):
         im.save(img_byte_arr, 'JPEG')
         encoded_img = base64.encodebytes(
             img_byte_arr.getvalue()).decode('ascii')
-        toc = time.time()
 
     return encoded_img
 
